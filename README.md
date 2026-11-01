@@ -6,15 +6,15 @@
   />
 </div>
 
-<p align="center">
+<h2 align="center">
   <a href="https://clearfx.netlify.app/">
     🌐 Live Application
   </a>
   &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="#demo-video">
-    ▶ Watch Demo
+  <a href="#https://www.loom.com/share/eb4dc4ebabd44149a47ce4b011163844">
+    ▶ Watch Loom Demo
   </a>
-</p>
+</h2>
 
 # ClearFX, Real-Time Data Aggregation Service
 
@@ -48,7 +48,7 @@ The deployed frontend is available at [clearfx.netlify.app](https://clearfx.netl
 A short walkthrough of ClearFX, covering the dashboard,
 currency conversion, data freshness, and backend reliability.
 
-[Loom Demo Video](https..)
+[Loom Demo Video](https://www.loom.com/share/eb4dc4ebabd44149a47ce4b011163844)
 
 ## What is included
 
