@@ -16,7 +16,20 @@ const CURRENCIES = [
   { code: "CNY", name: "Chinese Yuan", flag: "🇨🇳" },
 ];
 
-const DISPLAY_ORDER = ["INR", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "SGD", "AED", "NZD", "CNY", "USD"];
+const DISPLAY_ORDER = [
+  "INR",
+  "EUR",
+  "GBP",
+  "JPY",
+  "AUD",
+  "CAD",
+  "CHF",
+  "SGD",
+  "AED",
+  "NZD",
+  "CNY",
+  "USD",
+];
 
 function formatRate(value) {
   if (!Number.isFinite(value)) return "—";
@@ -63,8 +76,7 @@ function formatDateTime(dateString) {
 }
 
 function getCurrency(code) {
-  return CURRENCIES.find((currency) => currency.code === code)
-    ?? { code, name: code, flag: "💱" };
+  return CURRENCIES.find((currency) => currency.code === code) ?? { code, name: code, flag: "💱" };
 }
 
 function FreshnessBadge({ data }) {
@@ -91,15 +103,25 @@ function Header({ data }) {
       <a className="brand" href="#top" aria-label="ClearFX home">
         <span className="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none">
-            <path d="M4 8h14m0 0-3-3m3 3-3 3M20 16H6m0 0 3-3m-3 3 3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M4 8h14m0 0-3-3m3 3-3 3M20 16H6m0 0 3-3m-3 3 3 3"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
-        <span>clear<span className="brand-accent">fx</span></span>
+        <span>
+          clear<span className="brand-accent">fx</span>
+        </span>
       </a>
 
       <div className="topbar-right">
         <span className="topbar-label">DAILY RATE SERVICE</span>
-        <span className="live-indicator"><span /> PUBLIC DATA</span>
+        <span className="live-indicator">
+          <span /> PUBLIC DATA
+        </span>
         {data && <span className="topbar-updated">Updated {formatDateTime(data.fetchedAt)}</span>}
       </div>
     </header>
@@ -112,7 +134,9 @@ function RateCard({ currency, rate, base, rateDate }) {
     <article className="rate-card">
       <div className="rate-card-top">
         <div className="currency-identity">
-          <span className="currency-flag" aria-hidden="true">{details.flag}</span>
+          <span className="currency-flag" aria-hidden="true">
+            {details.flag}
+          </span>
           <div>
             <p className="currency-code">{currency}</p>
             <p className="currency-name">{details.name}</p>
@@ -123,7 +147,9 @@ function RateCard({ currency, rate, base, rateDate }) {
       <div className="rate-value-row">
         <span className="rate-value">{formatRate(rate)}</span>
       </div>
-      <p className="rate-caption">1 {base} = {formatRate(rate)} {currency}</p>
+      <p className="rate-caption">
+        1 {base} = {formatRate(rate)} {currency}
+      </p>
       <p className="rate-date-caption">As of {formatDate(rateDate)}</p>
     </article>
   );
@@ -139,43 +165,51 @@ function App() {
   const [error, setError] = useState("");
   const [lastChecked, setLastChecked] = useState(null);
 
-  const loadRates = useCallback(async ({ signal, isRefresh = false } = {}) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    setError("");
+  const loadRates = useCallback(
+    async ({ signal, isRefresh = false } = {}) => {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError("");
 
-    try {
-      const symbols = DISPLAY_ORDER.filter((code) => code !== base);
-      const result = await getRates({ base, symbols, signal });
-      setData(result);
-      setLastChecked(new Date().toISOString());
-    } catch (requestError) {
-      if (requestError.name !== "AbortError") {
-        setError(requestError.message || "Unable to load exchange rates.");
-        if (!isRefresh) {
-          setData(null);
-        } else {
-          setData((previous) => previous ? {
-            ...previous,
-            isLastKnown: true,
-            cacheStatus: "stale",
-            warning: "The latest refresh failed. Showing the last rates this screen received.",
-            freshness: {
-              ...previous.freshness,
-              status: "stale",
-              label: "Refresh failed",
-              message: "The latest refresh failed, so these values may now be out of date.",
-            },
-          } : previous);
+      try {
+        const symbols = DISPLAY_ORDER.filter((code) => code !== base);
+        const result = await getRates({ base, symbols, signal });
+        setData(result);
+        setLastChecked(new Date().toISOString());
+      } catch (requestError) {
+        if (requestError.name !== "AbortError") {
+          setError(requestError.message || "Unable to load exchange rates.");
+          if (!isRefresh) {
+            setData(null);
+          } else {
+            setData((previous) =>
+              previous
+                ? {
+                    ...previous,
+                    isLastKnown: true,
+                    cacheStatus: "stale",
+                    warning:
+                      "The latest refresh failed. Showing the last rates this screen received.",
+                    freshness: {
+                      ...previous.freshness,
+                      status: "stale",
+                      label: "Refresh failed",
+                      message: "The latest refresh failed, so these values may now be out of date.",
+                    },
+                  }
+                : previous,
+            );
+          }
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+          setRefreshing(false);
         }
       }
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    }
-  }, [base]);
+    },
+    [base],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -186,9 +220,9 @@ function App() {
 
   const availableRates = useMemo(() => {
     if (!data?.rates) return [];
-    return DISPLAY_ORDER
-      .filter((code) => code !== base && Number.isFinite(data.rates[code]))
-      .map((code) => ({ code, rate: data.rates[code] }));
+    return DISPLAY_ORDER.filter((code) => code !== base && Number.isFinite(data.rates[code])).map(
+      (code) => ({ code, rate: data.rates[code] }),
+    );
   }, [data, base]);
 
   useEffect(() => {
@@ -199,7 +233,23 @@ function App() {
   }, [base, target, data]);
 
   const converted = Number(amount) * (data?.rates?.[target] ?? NaN);
-  const isWarning = data && (data.isLastKnown || data.freshness?.status === "delayed" || data.freshness?.status === "stale");
+
+  const swapCurrencies = () => {
+    // Carry the visible conversion result into the input before reversing the pair.
+    // Keep an empty input empty rather than turning it into zero.
+    if (amount.trim() !== "" && Number.isFinite(converted)) {
+      setAmount(String(converted));
+    }
+
+    setBase(target);
+    setTarget(base);
+  };
+
+  const isWarning =
+    data &&
+    (data.isLastKnown ||
+      data.freshness?.status === "delayed" ||
+      data.freshness?.status === "stale");
 
   return (
     <div className="app-shell" id="top">
@@ -211,17 +261,27 @@ function App() {
         <main>
           <section className="hero-section">
             <div className="hero-copy">
-              <div className="eyebrow"><span className="eyebrow-line" /> CLEARER CURRENCY DATA</div>
-              <h1>Rates you can trust.<br /><span>Freshness you can see.</span></h1>
+              <div className="eyebrow">
+                <span className="eyebrow-line" /> CLEARER CURRENCY DATA
+              </div>
+              <h1>
+                Rates you can trust.
+                <br />
+                <span>Freshness you can see.</span>
+              </h1>
               <p className="hero-description">
-                Straightforward exchange rates, backed by public data sources and honest update timestamps.
+                Straightforward exchange rates, backed by public data sources and honest update
+                timestamps.
               </p>
             </div>
             <div className="hero-note">
               <span className="hero-note-icon">✳</span>
               <div>
                 <p className="hero-note-title">A note on freshness</p>
-                <p>These are daily reference rates, not live trading quotes. We always show the date behind the number.</p>
+                <p>
+                  These are daily reference rates, not live trading quotes. We always show the date
+                  behind the number.
+                </p>
               </div>
             </div>
           </section>
@@ -233,11 +293,21 @@ function App() {
                   <p className="section-kicker">QUICK CONVERSION</p>
                   <h2>Convert a currency</h2>
                 </div>
-                <span className="heading-icon">⇄</span>
+                <button
+                  type="button"
+                  className="heading-icon swap-currencies-button"
+                  onClick={swapCurrencies}
+                  aria-label={`Swap ${base} and ${target}`}
+                  title={`Swap ${base} and ${target}`}
+                >
+                  <span aria-hidden="true">⇄</span>
+                </button>
               </div>
 
               <div className="field-label-row">
-                <label className="field-label" htmlFor="base-currency">YOU HAVE</label>
+                <label className="field-label" htmlFor="base-currency">
+                  YOU HAVE
+                </label>
                 <span className="field-hint">Base currency</span>
               </div>
               <div className="converter-field">
@@ -260,15 +330,21 @@ function App() {
                   aria-label="Base currency"
                 >
                   {CURRENCIES.map((currency) => (
-                    <option key={currency.code} value={currency.code}>{currency.flag} {currency.code}</option>
+                    <option key={currency.code} value={currency.code}>
+                      {currency.flag} {currency.code}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              <div className="swap-divider"><span>↓</span></div>
+              <div className="swap-divider">
+                <span>↓</span>
+              </div>
 
               <div className="field-label-row">
-                <label className="field-label" htmlFor="target-currency">YOU GET</label>
+                <label className="field-label" htmlFor="target-currency">
+                  YOU GET
+                </label>
                 <span className="field-hint">Converted amount</span>
               </div>
               <div className="conversion-result">
@@ -283,12 +359,16 @@ function App() {
                   aria-label="Target currency"
                 >
                   {CURRENCIES.filter((currency) => currency.code !== base).map((currency) => (
-                    <option key={currency.code} value={currency.code}>{currency.flag} {currency.code}</option>
+                    <option key={currency.code} value={currency.code}>
+                      {currency.flag} {currency.code}
+                    </option>
                   ))}
                 </select>
               </div>
               <p className="converter-footnote">
-                {data ? `Based on 1 ${base} = ${formatRate(data.rates[target] ?? NaN)} ${target}` : "Waiting for the latest available rate…"}
+                {data
+                  ? `Based on 1 ${base} = ${formatRate(data.rates[target] ?? NaN)} ${target}`
+                  : "Waiting for the latest available rate…"}
               </p>
             </div>
 
@@ -302,32 +382,53 @@ function App() {
               </div>
 
               {loading && !data ? (
-                <div className="health-loading"><span className="loading loading-spinner loading-md" /> Fetching public rates…</div>
+                <div className="health-loading">
+                  <span className="loading loading-spinner loading-md" /> Fetching public rates…
+                </div>
               ) : data ? (
                 <>
                   <div className="health-status-row">
                     <FreshnessBadge data={data} />
-                    <span className="source-tag">{data.source === "fallback" ? "BACKUP SOURCE" : "PRIMARY SOURCE"}</span>
+                    <span className="source-tag">
+                      {data.source === "fallback" ? "BACKUP SOURCE" : "PRIMARY SOURCE"}
+                    </span>
                   </div>
                   <div className="rate-date-block">
                     <p className="health-label">LATEST RATE DATE</p>
                     <p className="rate-date">{formatDate(data.rateDate)}</p>
                     <p className="health-subline">Fetched {formatDateTime(data.fetchedAt)}</p>
                     {data.oldestRateDate && data.oldestRateDate !== data.rateDate && (
-                      <p className="health-subline">Some pairs are older, oldest rate: {formatDate(data.oldestRateDate)}</p>
+                      <p className="health-subline">
+                        Some pairs are older, oldest rate: {formatDate(data.oldestRateDate)}
+                      </p>
                     )}
                   </div>
                   <div className="health-divider" />
                   <div className="health-meta-row">
                     <span>Data provider</span>
-                    <a href={data.providerUrl} target="_blank" rel="noreferrer">{data.provider} ↗</a>
+                    <a href={data.providerUrl} target="_blank" rel="noreferrer">
+                      {data.provider} ↗
+                    </a>
                   </div>
                   <div className="health-meta-row">
                     <span>Cache status</span>
-                    <strong>{data.cacheStatus === "hit" ? "Served from cache" : data.cacheStatus === "stale" ? "Last-known snapshot" : data.cacheStatus === "fallback" ? "Fallback fetch" : "Fresh fetch"}</strong>
+                    <strong>
+                      {data.cacheStatus === "hit"
+                        ? "Served from cache"
+                        : data.cacheStatus === "stale"
+                          ? "Last-known snapshot"
+                          : data.cacheStatus === "fallback"
+                            ? "Fallback fetch"
+                            : "Fresh fetch"}
+                    </strong>
                   </div>
                   {data.attribution && (
-                    <p className="attribution">Rates by <a href={data.attribution.url} target="_blank" rel="noreferrer">fawazahmed0 Currency API</a></p>
+                    <p className="attribution">
+                      Rates by{" "}
+                      <a href={data.attribution.url} target="_blank" rel="noreferrer">
+                        fawazahmed0 Currency API
+                      </a>
+                    </p>
                   )}
                 </>
               ) : (
@@ -347,18 +448,32 @@ function App() {
                 <strong>We couldn't fetch exchange rates.</strong>
                 <p>{error}</p>
               </div>
-              <button className="text-button" onClick={() => loadRates({ isRefresh: Boolean(data) })} disabled={loading || refreshing}>Retry ↗</button>
+              <button
+                className="text-button"
+                onClick={() => loadRates({ isRefresh: Boolean(data) })}
+                disabled={loading || refreshing}
+              >
+                Retry ↗
+              </button>
             </div>
           )}
 
           {isWarning && (
-            <div className={`notice ${data.isLastKnown || data.freshness.status === "stale" ? "notice-error" : "notice-warning"}`} role="status">
+            <div
+              className={`notice ${data.isLastKnown || data.freshness.status === "stale" ? "notice-error" : "notice-warning"}`}
+              role="status"
+            >
               <span className="notice-icon">!</span>
               <div>
-                <strong>{data.isLastKnown ? "Showing the last successful snapshot" : data.freshness.label}</strong>
-                <p>{data.warning || data.freshness.message} {data.oldestRateDate && data.oldestRateDate !== data.rateDate
-                  ? `The oldest requested quote is dated ${formatDate(data.oldestRateDate)}.`
-                  : `The rates are dated ${formatDate(data.rateDate)}.`}</p>
+                <strong>
+                  {data.isLastKnown ? "Showing the last successful snapshot" : data.freshness.label}
+                </strong>
+                <p>
+                  {data.warning || data.freshness.message}{" "}
+                  {data.oldestRateDate && data.oldestRateDate !== data.rateDate
+                    ? `The oldest requested quote is dated ${formatDate(data.oldestRateDate)}.`
+                    : `The rates are dated ${formatDate(data.rateDate)}.`}
+                </p>
               </div>
             </div>
           )}
@@ -368,14 +483,32 @@ function App() {
               <div>
                 <p className="section-kicker">THE MARKET SNAPSHOT</p>
                 <h2>Popular exchange rates</h2>
-                <p className="rates-subtitle">One {base} converted into commonly used currencies. Each card shows its own rate date.</p>
+                <p className="rates-subtitle">
+                  One {base} converted into commonly used currencies. Each card shows its own rate
+                  date.
+                </p>
               </div>
               <div className="rates-controls">
-                <label className="base-picker-label" htmlFor="rates-base">BASE</label>
-                <select id="rates-base" className="base-picker" value={base} onChange={(event) => setBase(event.target.value)}>
-                  {CURRENCIES.map((currency) => <option key={currency.code} value={currency.code}>{currency.code}</option>)}
+                <label className="base-picker-label" htmlFor="rates-base">
+                  BASE
+                </label>
+                <select
+                  id="rates-base"
+                  className="base-picker"
+                  value={base}
+                  onChange={(event) => setBase(event.target.value)}
+                >
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.code}
+                    </option>
+                  ))}
                 </select>
-                <button className="refresh-button" onClick={() => loadRates({ isRefresh: Boolean(data) })} disabled={loading || refreshing}>
+                <button
+                  className="refresh-button"
+                  onClick={() => loadRates({ isRefresh: Boolean(data) })}
+                  disabled={loading || refreshing}
+                >
                   <span className={refreshing ? "refresh-icon spinning" : "refresh-icon"}>↻</span>
                   {refreshing ? "Checking" : "Check for updates"}
                 </button>
@@ -391,15 +524,26 @@ function App() {
               <>
                 <div className="rates-grid">
                   {availableRates.map(({ code, rate }) => (
-                    <RateCard key={code} currency={code} rate={rate} base={base} rateDate={data.rateDates?.[code] || data.rateDate} />
+                    <RateCard
+                      key={code}
+                      currency={code}
+                      rate={rate}
+                      base={base}
+                      rateDate={data.rateDates?.[code] || data.rateDate}
+                    />
                   ))}
                 </div>
                 {availableRates.length === 0 && (
-                  <div className="empty-rates">No popular quote currencies were returned for {base}. Try another base currency.</div>
+                  <div className="empty-rates">
+                    No popular quote currencies were returned for {base}. Try another base currency.
+                  </div>
                 )}
                 <div className="rates-footnote">
                   <span className="footnote-mark">i</span>
-                  <span>Reference rates for {formatDate(data.rateDate)}. Values may differ from the rate offered by your bank or card provider.</span>
+                  <span>
+                    Reference rates for {formatDate(data.rateDate)}. Values may differ from the rate
+                    offered by your bank or card provider.
+                  </span>
                   <span className="footnote-updated">Checked {formatDateTime(lastChecked)}</span>
                 </div>
               </>
@@ -407,14 +551,26 @@ function App() {
               <div className="rates-error-state">
                 <div className="rates-error-icon">↻</div>
                 <h3>Rates are taking a break.</h3>
-                <p>Neither public provider returned usable data. No values are being made up or silently substituted.</p>
-                <button className="refresh-button primary-refresh" onClick={() => loadRates()} disabled={loading}>Try again</button>
+                <p>
+                  Neither public provider returned usable data. No values are being made up or
+                  silently substituted.
+                </p>
+                <button
+                  className="refresh-button primary-refresh"
+                  onClick={() => loadRates()}
+                  disabled={loading}
+                >
+                  Try again
+                </button>
               </div>
             )}
           </section>
 
           <footer className="footer">
-            <p><span className="footer-brand">clearfx</span> Built around one simple idea: reliable data should come with an honest timestamp.</p>
+            <p>
+              <span className="footer-brand">clearfx</span> Built around one simple idea: reliable
+              data should come with an honest timestamp.
+            </p>
             <span>DAILY REFERENCE RATES · NOT LIVE TRADING DATA</span>
           </footer>
         </main>

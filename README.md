@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="./assets/clearfx-logo.svg" alt="ClearFX logo" width="520" />
+</p>
+
+<p align="center">
+  <a href="https://clearfx.netlify.app">Live application</a>
+</p>
+
 # ClearFX, Real-Time Data Aggregation Service
 
 A small foreign-exchange rate service built for the Cactro Product Engineer assignment. It prioritizes dependable access, transparent freshness information, and predictable degraded states over pretending that free daily reference rates are live trading quotes.
@@ -5,6 +13,10 @@ A small foreign-exchange rate service built for the Cactro Product Engineer assi
 ## Initial thought process, complete before submission
 
 The assignment asks for your initial product thinking in this README and specifically requires `MY_APPROACH.md` to be written by you without AI. I have left the personal-thinking sections as prompts rather than inventing first-person reasoning on your behalf. Complete `MY_APPROACH.md` yourself, then replace this paragraph with a short summary of your own initial approach.
+
+## Live application
+
+The deployed frontend is available at [clearfx.netlify.app](https://clearfx.netlify.app). The source code is maintained in this repository.
 
 ## What is included
 
@@ -81,10 +93,10 @@ The output is in `frontend/dist`.
 
 ### `GET /api/rates`
 
-| Query | Required | Example | Meaning |
-|---|---|---|---|
-| `base` | No | `USD` | Three-letter base currency. Defaults to `USD`. |
-| `symbols` | No | `INR,EUR,GBP` | Optional comma-separated quote currencies, maximum 25. |
+| Query     | Required | Example       | Meaning                                                |
+| --------- | -------- | ------------- | ------------------------------------------------------ |
+| `base`    | No       | `USD`         | Three-letter base currency. Defaults to `USD`.         |
+| `symbols` | No       | `INR,EUR,GBP` | Optional comma-separated quote currencies, maximum 25. |
 
 A successful response includes:
 
@@ -113,7 +125,7 @@ The repository includes `render.yaml` for the backend and `netlify.toml` for the
 1. Push this folder to a GitHub repository.
 2. In Render, create a new Blueprint and select the repository.
 3. Render reads `render.yaml` and creates the `clearfx-api` web service.
-4. After it is live, copy its public URL, for example `https://clearfx-api.onrender.com`.
+4. After it is live, copy its public URL, for example `https://yourapp-api.onrender.com`.
 
 ### Frontend on Netlify
 
@@ -131,10 +143,12 @@ If you use a different frontend host, set its build output to `frontend/dist` an
 ## Project structure
 
 ```text
-clearfx-aggregation-service/
+clearfx/
 ├── MY_APPROACH.md
 ├── decisions.md
 ├── README.md
+├── assets/
+│   └── clearfx-logo.svg
 ├── render.yaml
 ├── netlify.toml
 ├── backend/
@@ -148,6 +162,9 @@ clearfx-aggregation-service/
 │   ├── .env.example
 │   └── package.json
 └── frontend/
+    ├── public/
+    │   ├── clearfx-favicon.ico
+    │   └── clearfx-app-icon.png
     ├── src/
     │   ├── lib/
     │   │   └── api.js

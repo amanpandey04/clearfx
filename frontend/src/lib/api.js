@@ -13,12 +13,15 @@ export async function getRates({ base = "USD", symbols, signal } = {}) {
     });
   } catch (error) {
     if (error.name === "AbortError") throw error;
-    throw new Error("Cannot reach the rates service. Check that the backend is running and try again.");
+    throw new Error(
+      "Cannot reach the rates service. Check that the backend is running and try again.",
+    );
   }
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    const message = payload?.error?.message || `The rates service returned HTTP ${response.status}.`;
+    const message =
+      payload?.error?.message || `The rates service returned HTTP ${response.status}.`;
     const error = new Error(message);
     error.status = response.status;
     error.code = payload?.error?.code;
