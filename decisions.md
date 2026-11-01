@@ -4,7 +4,7 @@
 
 **Primary: Frankfurter API v2** (`https://api.frankfurter.dev/v2/rates`). It requires no API key, has no monthly quota, covers a broad set of currencies, and blends rates from institutional providers. The v2 API is used deliberately: its response is an array of `{ date, base, quote, rate }` records, not the v1 `{ rates: {} }` shape.
 
-**Fallback: fawazahmed0 Currency API** (`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base}.json`). It requires no API key, publishes daily static JSON, covers a broad set of currencies, and is released under CC0-1.0. The project documents a Cloudflare Pages mirror (`https://latest.currency-api.pages.dev/v1/currencies/{base}.json`), which is attempted if jsDelivr fails. The app provides a discreet courtesy attribution link when this data is used. The two URLs are mirrors of one dataset, not independent rate providers.
+**Fallback: fawazahmed0 Currency API** (`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{base}.json`). It requires no API key, publishes daily static JSON, covers a broad set of currencies, and is released under CC0-1.0. The project documents a Cloudflare Pages mirror (`https://latest.currency-api.pages.dev/v1/currencies/{base}.json`), which is attempted if jsDelivr fails.
 
 Both sources are public daily reference-rate sources. They are not suitable for presenting tick-by-tick trading prices. I chose honest timestamps and consistent availability over a misleading "live" label.
 
@@ -12,15 +12,13 @@ Both sources are public daily reference-rate sources. They are not suitable for 
 
 1. Serve a still-valid backend cache entry without contacting an upstream provider.
 2. When the cache expires, try Frankfurter first.
-3. If Frankfurter errors, times out, or returns an invalid payload, try the fawazahmed0 dataset on jsDelivr, then its documented Cloudflare Pages mirror.
+3. If Frankfurter errors, times out, or returns an invalid payload, try the fawazahmed0 dataset on jsDelivr.
 4. If both providers fail, return the last-known-good response for that base currency with `isLastKnown: true`, a stale cache state, and an explicit warning.
 5. If this process has never received a successful response for that base currency, return HTTP `503` with a stable JSON error. The server remains running.
 
-The backend also coalesces simultaneous requests for the same base currency, preventing a burst of visitors from creating duplicate upstream calls.
-
 ## 3. How are conflicting data sources handled?
 
-The service uses a strict provider priority: Frankfurter is authoritative for a successful refresh; fawazahmed0 is used only if Frankfurter cannot provide a valid response. Rates from different providers are never averaged or mixed into one response. Their methodologies and publication times can differ, and averaging them would create a number neither provider actually published. The response always names the provider and rate date so the user can see the provenance.
+The service uses a strict provider priority: Frankfurter is authoritative for a successful refresh; fawazahmed0 is used only if Frankfurter cannot provide a valid response. Rates from different providers are never averaged or mixed into one response. Their methodologies and publication times can differ, and averaging them would create a number neither provider actually published. The response always names the provider and rate date so the user can see those.
 
 ## 4. What does the user see when things fail or data is stale?
 
@@ -48,7 +46,7 @@ These decisions improve availability and perceived reliability. They cannot make
 - No login, user accounts, billing, or paid-tier integration.
 - No historical charts, alerts, watchlists, or portfolio tracking.
 - No database or distributed cache. This version uses in-memory cache and is intentionally a single-instance MVP.
-- No premium API calls for free users. The assignment says free users use public APIs, and the public sources are sufficient for a trustworthy daily-reference experience. Spending the optional $5/day would not fix the providers' publication cadence unless a materially fresher licensed feed were introduced.
+- No premium API calls for free users. The assignment says free users use public APIs, and the public sources are sufficient for a trustworthy daily-reference experience.
 - No attempt to build a trading terminal or quote every currency pair in the interface.
 
 ## 7. What would I add with more time?
