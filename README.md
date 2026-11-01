@@ -11,7 +11,7 @@
     🌐 Live Application
   </a>
   &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="#https://www.loom.com/share/eb4dc4ebabd44149a47ce4b011163844">
+  <a href="https://www.loom.com/share/eb4dc4ebabd44149a47ce4b011163844">
     ▶ Watch Loom Demo
   </a>
 </h2>
